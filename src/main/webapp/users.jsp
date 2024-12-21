@@ -6,6 +6,6 @@
 <body>
 <h3><a href="index.html">Home</a></h3>
 <hr>
-<h2>Users</h2>
+<h2><a href="meals">Users(ссылка на заглушку)</a></h2>
 </body>
 </html>
