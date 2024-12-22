@@ -6,10 +6,14 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DataRepository implements MealRepository {
 
-    private static volatile DataRepository instance;
+    private static DataRepository instance;
+    private static Integer counterId = 0;
+
+
 
     public static final List<Meal> meals = Arrays.asList(
             new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
@@ -21,7 +25,7 @@ public class DataRepository implements MealRepository {
             new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
     );
 
-    private List<Meal> localRepository = List.copyOf(meals);
+    private final List<Meal> localRepository = new CopyOnWriteArrayList<>(meals);
 
     private DataRepository(){}
 
@@ -34,6 +38,10 @@ public class DataRepository implements MealRepository {
             }
         }
         return instance;
+    }
+
+    private Integer incrementId(){
+        return ++counterId;
     }
 
     @Override
@@ -50,8 +58,11 @@ public class DataRepository implements MealRepository {
     }
 
     @Override
-    public void update(int id) {
-
+    public void update(int id, LocalDateTime dateTime, String description, int calories) {
+        Meal meal = localRepository.stream().filter(m -> m.getId()==id).findFirst().orElseThrow();
+        meal.setDateTime(dateTime);
+        meal.setDescription(description);
+        meal.setCalories(calories);
     }
 
     @Override
