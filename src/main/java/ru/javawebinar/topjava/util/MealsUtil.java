@@ -35,8 +35,11 @@ public class MealsUtil {
 //                      Collectors.toMap(Meal::getDate, Meal::getCalories, Integer::sum)
                 );
 
+        LocalTime nullStartTime = (startTime == null) ? LocalTime.MIN : startTime;
+        LocalTime nullEndTime = (endTime == null) ? LocalTime.MAX : endTime;
+
         return meals.stream()
-                .filter(meal -> startTime == null || endTime == null || TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime))
+                .filter(meal -> TimeUtil.isBetweenHalfOpen(meal.getTime(), nullStartTime, nullEndTime))
                 .map(meal -> createTo(meal, caloriesSumByDate.get(meal.getDate()) > caloriesPerDay))
                 .collect(Collectors.toList());
     }

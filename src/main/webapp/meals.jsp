@@ -28,17 +28,14 @@
                 </form>
             </td>
             <td>
-                <form action="meals" method="get" style="display:inline;">
-                    <input type="hidden" name="id" value=${meal.id}>
-                    <input type="hidden" name="dateTime" value=${meal.dateTime}>
-                    <input type="hidden" name="description" value=${meal.description}>
-                    <input type="hidden" name="calories" value=${meal.calories}>
-                    <input type="hidden" name="methodSelect" value="updateForm">
-                    <button type="submit">Update</button>
+               <form action="meals" method="get" style="display:inline;">
+                   <input type="hidden" name="id" value=${meal.id}>
+                <input type="hidden" name="methodSelect" value="updateForm">
+                <button type="submit">Update</button>
                 </form>
-            </td>
-        </tr>
-    </c:forEach>
+</td>
+</tr>
+</c:forEach>
 </table>
 </body>
 </html>

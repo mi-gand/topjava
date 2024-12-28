@@ -16,7 +16,6 @@ public class TimeUtil {
     }
 
     public static String formatDate(LocalDateTime localDateTime) {
-        log.debug("date: {}", localDateTime.format(formatter));
         return localDateTime.format(formatter);
     }
 }

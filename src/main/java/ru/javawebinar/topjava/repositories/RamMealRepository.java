@@ -17,13 +17,15 @@ public class RamMealRepository implements MealRepository {
     private final Map<Integer, Meal> localRepositoryMap = new ConcurrentHashMap<>();
 
     {
-        localRepositoryMap.put(1, new Meal(1, LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500));
-        localRepositoryMap.put(2, new Meal(2, LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000));
-        localRepositoryMap.put(3, new Meal(3, LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500));
-        localRepositoryMap.put(4, new Meal(4, LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100));
-        localRepositoryMap.put(5, new Meal(5, LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0), "Завтрак", 1000));
-        localRepositoryMap.put(6, new Meal(6, LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500));
-        localRepositoryMap.put(7, new Meal(7, LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410));
+        Arrays.asList(
+                new Meal(1, LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
+                new Meal(2, LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000),
+                new Meal(3, LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500),
+                new Meal(4, LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100),
+                new Meal(5, LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0), "Завтрак", 1000),
+                new Meal(6, LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500),
+                new Meal(7, LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
+        ).forEach(this::save);
 
         counterId.set(7);
     }
@@ -35,8 +37,8 @@ public class RamMealRepository implements MealRepository {
             localRepositoryMap.put(newId, new Meal(newId, meal.getDateTime(), meal.getDescription(),
                     meal.getCalories()));
         } else {
-            return localRepositoryMap.computeIfPresent(meal.getId(), (id, existingMeal) ->
-                    new Meal(id, meal.getDateTime(), meal.getDescription(), meal.getCalories()));
+            return localRepositoryMap.put(meal.getId(), new Meal(meal.getId(), meal.getDateTime(),
+                    meal.getDescription(), meal.getCalories()));
         }
         log.debug("Meal object to repository: {}", meal);
         return meal;
