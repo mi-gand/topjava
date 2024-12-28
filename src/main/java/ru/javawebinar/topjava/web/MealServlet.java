@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -20,68 +19,61 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class MealServlet extends HttpServlet {
 
     public static final Integer CALORIES_PER_DAY = 2000;
-    private MealRepository mealRepository;
     private static final Logger log = getLogger(MealServlet.class);
+    private MealRepository mealRepository;
 
     @Override
-    public void init() throws ServletException {
-        super.init();
+    public void init() {
         this.mealRepository = new RamMealRepository();
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        log.debug("show meals list");
+        log.debug("in doGet servlet");
 
-        req.setAttribute("mealsList", MealsUtil.filteredByStreams(new ArrayList<>(mealRepository.getAll().values()),
-                null, null, CALORIES_PER_DAY));
-
-        mealRepository.getAll().values().forEach(m -> log.debug(LocalTime.now() + ".Meal: " + m));
-        req.getRequestDispatcher("meals.jsp").forward(req, resp);
+        String method = req.getParameter("methodSelect");
+        if(method == null){
+            req.setAttribute("mealsList", MealsUtil.filteredByStreams(new ArrayList<>(mealRepository.getAll()),
+                    null, null, CALORIES_PER_DAY));
+            req.getRequestDispatcher("meals.jsp").forward(req, resp);
+        }else if(method != null &&
+                method.equalsIgnoreCase("createForm")){
+            resp.sendRedirect("mealEdit.jsp");
+        }else if(method != null &&
+                method.equalsIgnoreCase("updateForm")){
+            req.getRequestDispatcher("mealEdit.jsp").forward(req, resp);
+        }else{
+            throw new UnsupportedOperationException("something wrong");
+        }
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         req.setCharacterEncoding("UTF-8");
-
         log.debug("in doPost servlet");
+
         String method = req.getParameter("methodSelect");
-
         if ("delete".equalsIgnoreCase(method)) {
-            doDelete(req, resp);
-        } else if ("createOrUpdate".equalsIgnoreCase(method)) {
-            if (req.getParameter("id").equalsIgnoreCase("newMeal")) {
-                log.debug("in doPost-create new meal");
-                resp.sendRedirect("mealEdit.jsp");
-            } else {
-                log.debug("in doPost-update meal");
-                LocalDateTime localDateTime = LocalDateTime.parse(req.getParameter("dateTime"));
-                String description = req.getParameter("description");
-                int calories = Integer.parseInt(req.getParameter("calories"));
-                Integer id = req.getParameter("id").isEmpty() ? null : Integer.parseInt(req.getParameter("id"));
-                mealRepository.save(new Meal(id, localDateTime, description, calories));
-                resp.sendRedirect("meals");
-            }
-        }
-    }
+            log.debug("in doPost - delete meal");
 
-    @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("text/html; charset=UTF-8");
-
-        log.debug("in doDelete servlet");
-        String idParam = req.getParameter("id");
-
-        if (idParam != null) {
-            boolean isDeleted = mealRepository.delete(Integer.parseInt(idParam));
-            if (isDeleted) {
-                resp.setStatus(204);
+            String idParam = req.getParameter("id");
+            if (idParam != null) {
+                mealRepository.delete(Integer.parseInt(idParam));
                 resp.sendRedirect("meals");
             } else {
-                resp.setStatus(404);
+                throw new UnsupportedOperationException("something wrong");
             }
-        } else {
-            resp.setStatus(400);
+        } else if ("update".equalsIgnoreCase(method)) {
+            log.debug("in doPost-update meal");
+
+            LocalDateTime localDateTime = LocalDateTime.parse(req.getParameter("dateTime"));
+            String description = req.getParameter("description");
+            int calories = Integer.parseInt(req.getParameter("calories"));
+            Integer id = req.getParameter("id").isEmpty() ? null : Integer.parseInt(req.getParameter("id"));
+            mealRepository.save(new Meal(id, localDateTime, description, calories));
+            resp.sendRedirect("meals");
+        }else{
+            throw new UnsupportedOperationException("something wrong");
         }
     }
 }

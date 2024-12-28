@@ -9,14 +9,8 @@
     <uri>/tags/timeUtil</uri>
 
     <function>
-        <name>isBetweenHalfOpen</name>
-        <function-class>ru.javawebinar.topjava.util.TimeUtil</function-class>
-        <function-signature>boolean isBetweenHalfOpen(java.time.LocalTime, java.time.LocalTime, java.time.LocalTime)</function-signature>
-    </function>
-
-    <function>
         <name>formatDate</name>
         <function-class>ru.javawebinar.topjava.util.TimeUtil</function-class>
-        <function-signature>java.util.Date formatDate(java.time.LocalDateTime)</function-signature>
+        <function-signature>java.lang.String formatDate(java.time.LocalDateTime)</function-signature>
     </function>
 </taglib>

@@ -10,7 +10,7 @@
 <h1>Edit meal</h1>
 <a href="index.html">Home</a>
 <form method="post" action="meals" >
-    <input type="hidden" name="methodSelect" value="createOrUpdate">
+    <input type="hidden" name="methodSelect" value="update">
     <input type="hidden" name="id" value=${param.id}>
     <table>
         <tr>
@@ -21,7 +21,7 @@
         <tr>
             <td><label for="description">Description:</label></td>
             <td><input type="text" id="description" name="description" placeholder="Что вы сьели?"
-                       value=${param.description} required /></td>
+                       value="<c:out value='${param.description}' default='' />" required />
         </tr>
         <tr>
             <td><label for="calories">Calories:</label></td>

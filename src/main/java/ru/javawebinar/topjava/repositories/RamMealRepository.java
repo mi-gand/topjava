@@ -7,14 +7,14 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class RamMealRepository implements MealRepository {
-
-    private Integer counterId = 0;
-    private final Map<Integer, Meal> localRepositoryMap = new ConcurrentHashMap<>();
     private static final Logger log = getLogger(RamMealRepository.class);
+    private final AtomicInteger counterId = new AtomicInteger(0);
+    private final Map<Integer, Meal> localRepositoryMap = new ConcurrentHashMap<>();
 
     {
         localRepositoryMap.put(1, new Meal(1, LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500));
@@ -25,41 +25,25 @@ public class RamMealRepository implements MealRepository {
         localRepositoryMap.put(6, new Meal(6, LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500));
         localRepositoryMap.put(7, new Meal(7, LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410));
 
-        counterId = 7;
-    }
-
-    public RamMealRepository() {
+        counterId.set(7);
     }
 
     @Override
     public Meal save(Meal meal) {
         if (meal.getId() == null) {
-            Integer newId = incrementId();
+            int newId = incrementId();
             localRepositoryMap.put(newId, new Meal(newId, meal.getDateTime(), meal.getDescription(),
                     meal.getCalories()));
         } else {
-            update(meal);
+            return localRepositoryMap.computeIfPresent(meal.getId(), (id, existingMeal) ->
+                    new Meal(id, meal.getDateTime(), meal.getDescription(), meal.getCalories()));
         }
-        log.debug("Meal object to repository: " + meal);
+        log.debug("Meal object to repository: {}", meal);
         return meal;
     }
 
-    private Integer incrementId() {
-        return ++counterId;
-    }
-
-    @Override
-    public Meal update(Meal meal) {
-        synchronized (localRepositoryMap) {
-            Meal existingMeal = localRepositoryMap.get(meal.getId());
-            if (existingMeal == null) {
-                return null;
-            }
-            Meal newMeal = new Meal(meal.getId(), meal.getDateTime(),
-                    meal.getDescription(), meal.getCalories());
-            localRepositoryMap.put(meal.getId(), newMeal);
-            return newMeal;
-        }
+    private int incrementId() {
+        return counterId.incrementAndGet();
     }
 
     @Override
@@ -73,7 +57,7 @@ public class RamMealRepository implements MealRepository {
     }
 
     @Override
-    public Map<Integer, Meal> getAll() {
-        return new ConcurrentHashMap<>(localRepositoryMap);
+    public List<Meal> getAll() {
+        return new ArrayList<>(localRepositoryMap.values());
     }
 }
