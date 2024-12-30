@@ -32,28 +32,26 @@ public class MealServlet extends HttpServlet {
         log.debug("1.0: in doGet servlet");
 
         String method = req.getParameter("methodSelect");
-        if(method == null){
-            log.debug("1.1: in doGet - show meals list");
-            req.setAttribute("mealsList", MealsUtil.filteredByStreams(new ArrayList<>(mealRepository.getAll()),
-                    null, null, CALORIES_PER_DAY));
-            req.getRequestDispatcher("meals.jsp").forward(req, resp);
-        }else if(method.equalsIgnoreCase("createForm")){
+        if (method == null) {
+            req.getRequestDispatcher("meals.jsp").forward(prepareMealsForView(req), resp);
+        } else if (method.equalsIgnoreCase("createForm")) {
             log.debug("1.2: in doGet - redirect to the form for creating a new meal");
             req.getRequestDispatcher("mealEdit.jsp").forward(req, resp);
-        }else if(method.equalsIgnoreCase("updateForm")){
+        } else if (method.equalsIgnoreCase("updateForm")) {
             log.debug("1.3: in doGet - forwarding with the parameters to the form for updating the meal");
             Meal mealToUpdate = mealRepository.read(Integer.parseInt(req.getParameter("id")));
-            req.setAttribute("id", mealToUpdate.getId());
-            req.setAttribute("dateTime", mealToUpdate.getDateTime());
-            req.setAttribute("description", mealToUpdate.getDescription());
-            req.setAttribute("calories", mealToUpdate.getCalories());
+            req.setAttribute("meal", mealToUpdate);
             req.getRequestDispatcher("mealEdit.jsp").forward(req, resp);
-        }else{
-            log.debug("1.4: in doGet(ELSE LOGIC. ATTENTION) - show meals list");
-            req.setAttribute("mealsList", MealsUtil.filteredByStreams(new ArrayList<>(mealRepository.getAll()),
-                    null, null, CALORIES_PER_DAY));
-            req.getRequestDispatcher("meals.jsp").forward(req, resp);
+        } else {
+            req.getRequestDispatcher("meals.jsp").forward(prepareMealsForView(req), resp);
         }
+    }
+
+    private HttpServletRequest prepareMealsForView(HttpServletRequest req){
+        log.debug("1.1: in doGet - show meals list");
+        req.setAttribute("mealsList", MealsUtil.filteredByStreams(new ArrayList<>(mealRepository.getAll()),
+                null, null, CALORIES_PER_DAY));
+        return req;
     }
 
     @Override
@@ -81,7 +79,7 @@ public class MealServlet extends HttpServlet {
             Integer id = req.getParameter("id").isEmpty() ? null : Integer.parseInt(req.getParameter("id"));
             mealRepository.save(new Meal(id, localDateTime, description, calories));
             resp.sendRedirect("meals");
-        }else{
+        } else {
             throw new UnsupportedOperationException("something wrong");
         }
     }

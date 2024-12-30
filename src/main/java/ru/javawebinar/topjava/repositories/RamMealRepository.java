@@ -37,8 +37,8 @@ public class RamMealRepository implements MealRepository {
             localRepositoryMap.put(newId, new Meal(newId, meal.getDateTime(), meal.getDescription(),
                     meal.getCalories()));
         } else {
-            return localRepositoryMap.put(meal.getId(), new Meal(meal.getId(), meal.getDateTime(),
-                    meal.getDescription(), meal.getCalories()));
+            Meal updateMeal = new Meal(meal.getId(), meal.getDateTime(), meal.getDescription(), meal.getCalories());
+            return localRepositoryMap.put(meal.getId(), updateMeal);
         }
         log.debug("Meal object to repository: {}", meal);
         return meal;
