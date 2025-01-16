@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Objects;
 
 public class MealServlet extends HttpServlet {
@@ -37,7 +38,7 @@ public class MealServlet extends HttpServlet {
                 Integer.parseInt(request.getParameter("calories")));
 
         log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
-        repository.save(meal,1);
+        repository.save(meal, 1);
         response.sendRedirect("meals");
     }
 
@@ -49,24 +50,25 @@ public class MealServlet extends HttpServlet {
             case "delete":
                 int id = getId(request);
                 log.info("Delete id={}", id);
-                repository.delete(id,1);
+                repository.delete(id, 1);
                 response.sendRedirect("meals");
                 break;
             case "create":
             case "update":
                 final Meal meal = "create".equals(action) ?
                         new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000) :
-                        repository.get(getId(request),1);
+                        repository.get(getId(request), 1);
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
                 break;
             case "all":
             default:
+                List<Meal> listOfMeals = repository.getAll(1);
                 log.info("getAll");
                 request.setAttribute("meals",
-                        MealsUtil.getTos(repository.getAll(1), MealsUtil.DEFAULT_CALORIES_PER_DAY));
+                        MealsUtil.getTos(listOfMeals, MealsUtil.DEFAULT_CALORIES_PER_DAY));
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
-                repository.getAll(1).forEach(v -> log.info(v.toString()));
+                listOfMeals.forEach(v -> log.info(v.toString()));
                 break;
         }
     }

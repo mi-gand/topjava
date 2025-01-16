@@ -5,15 +5,16 @@ import static org.mockito.Mockito.*;
 import org.mockito.MockedStatic;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
+import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.repository.inmemory.InMemoryMealRepository;
-import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.web.SecurityUtil;
-import ru.javawebinar.topjava.web.meal.MealRestController;
 import ru.javawebinar.topjava.web.user.AdminRestController;
-
-import java.util.Arrays;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.List;
 
 public class SpringMain {
     static MockedStatic<SecurityUtil> mockSecurityUtil = mockStatic(SecurityUtil.class);
@@ -25,6 +26,15 @@ public class SpringMain {
             AdminRestController adminUserController = appCtx.getBean(AdminRestController.class);
             adminUserController.create(new User(null, "adminName", "emailadmin@mail.ru", "password", Role.ADMIN));
             adminUserController.create(new User(null, "simpleName", "emailsimple@mail.ru", "password", Role.USER));
+            adminUserController.create(new User(null, "John Smith", "emailsimple1@mail.ru", "password", Role.USER));
+            adminUserController.create(new User(null, "John Smith", "emailsimple4@mail.ru", "password", Role.USER));
+            adminUserController.create(new User(null, "John Smith", "emailsimple3@mail.ru", "password", Role.USER));
+            adminUserController.create(new User(null, "John Smith", "emailsimple2@mail.ru", "password", Role.USER));
+
+
+            System.out.println("вывожу список пользователей");
+            List<User> users = adminUserController.getAll();
+            users.forEach(System.out::println);
 
             InMemoryMealRepository inMemoryMealRepository = appCtx.getBean(InMemoryMealRepository.class);
             System.out.println("User 1");
@@ -32,18 +42,47 @@ public class SpringMain {
             System.out.println("User 2");
             inMemoryMealRepository.getAll(2).forEach(System.out::println);
 
-            MealRestController mealRestController = appCtx.getBean(MealRestController.class);
+            MealRepository mealRepository = appCtx.getBean(MealRepository.class);
+/*            Meal updateMeal = new Meal(LocalDateTime.of(2024, Month.JANUARY, 10, 10, 1),
+                    "Завтрак", 1500);*/
+
+            Meal updateMeal = mealRepository.get(8, 2);
+
+            System.out.println("___________________\nТест на чужой еде \n___________________");
+            System.out.println("get method: " + mealRepository.get(8, 1));
+            System.out.println("update method: " + mealRepository.save(updateMeal, 1));
+            System.out.println("delete method: " + mealRepository.delete(8, 1));
+
+
+            System.out.println("___________________\n Тест на своей еде \n___________________");
+            System.out.println("get method: " + mealRepository.get(8, 2));
+            System.out.println("update method: " + mealRepository.save(updateMeal, 2));
+            System.out.println("delete method: " + mealRepository.delete(8, 2));
+
+
+            System.out.println("___________________\nСохранение новой еды в user2 \n___________________");
+            Meal newMeal = new Meal(LocalDateTime.of(2024, Month.JANUARY, 10, 10, 1), "ЗавтракNew", 1560);
+            mealRepository.save(newMeal, 2);
+            inMemoryMealRepository.getAll(2).forEach(System.out::println);
+
+
+            System.out.println("___________________\nВывод еды user2 \n___________________");
+            inMemoryMealRepository.getAll(2).forEach(System.out::println);
+/*            inMemoryMealRepository.getAll(1).forEach(System.out::println);
+            inMemoryMealRepository.getAll(2).forEach(System.out::println);*/
+
+/*            MealRestController mealRestController = appCtx.getBean(MealRestController.class);
             System.out.println("Меняю User id на: " + changeUserId(1));
             mealRestController.getAll().forEach(System.out::println);
             System.out.println("Меняю User id на: " + changeUserId(2));
             mealRestController.getAll().forEach(System.out::println);
             System.out.println("Меняю User id на: " + changeUserId(1));
-            mealRestController.getAll().forEach(System.out::println);
+            mealRestController.getAll().forEach(System.out::println);*/
 
         }
     }
 
-    static int changeUserId(int newUserId){
+    static int changeUserId(int newUserId) {
         mockSecurityUtil.when(SecurityUtil::authUserId).thenReturn(newUserId);
         return newUserId;
     }
