@@ -25,21 +25,19 @@ public class InMemoryMealRepository implements MealRepository {
         mealsForSecondUser.forEach(meal -> save(meal, 2));
     }
 
-    private boolean isMealBelongsToUser(int mealId, int userId) {
-        Map<Integer, Meal> userMeals = repository.get(userId);
-        return userMeals == null || !userMeals.containsKey(mealId);
-    }
-
     @Override
     public Meal save(Meal meal, int userId) {
         Map<Integer, Meal> userMeals = repository.computeIfAbsent(userId, v -> new ConcurrentHashMap<>());
-        if (!meal.isNew() && isMealBelongsToUser(meal.getId(), userId)) {
+
+        synchronized (userMeals){
+        if (!meal.isNew() && !userMeals.containsKey(meal.getId())) {
             return null;
         }
         if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
         }
         userMeals.put(meal.getId(), meal);
+        }
         return meal;
     }
 
@@ -57,6 +55,11 @@ public class InMemoryMealRepository implements MealRepository {
             return null;
         }
         return repository.get(userId).get(id);
+    }
+
+    private boolean isMealBelongsToUser(int mealId, int userId) {
+        Map<Integer, Meal> userMeals = repository.get(userId);
+        return userMeals == null || !userMeals.containsKey(mealId);
     }
 
     @Override

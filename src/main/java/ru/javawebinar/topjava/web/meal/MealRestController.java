@@ -11,7 +11,6 @@ import ru.javawebinar.topjava.web.SecurityUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
 
 
@@ -49,7 +48,7 @@ public class MealRestController {
 
     public void update(Meal meal, int id) {
         log.info("update {} with id={}", meal, id);
-        assureIdConsistent(meal, id);
-        service.update(meal, id);
+        int userId = SecurityUtil.authUserId();
+        service.update(meal, userId);
     }
 }

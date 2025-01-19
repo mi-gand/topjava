@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.AbstractNamedEntity;
+import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 
@@ -18,6 +19,14 @@ public class InMemoryUserRepository implements UserRepository {
     private final Map<Integer, User> repository = new ConcurrentHashMap<>();
     private final AtomicInteger counter = new AtomicInteger(0);
 
+    {
+        User admin = new User(null, "Petya", "admin@www.com", "qwerty", Role.ADMIN);
+        User user = new User(null, "Vasya", "user@www.com", "qwerty", Role.USER);
+
+        this.save(admin);
+        this.save(user);
+    }
+
     // false if not found
     @Override
     public boolean delete(int id) {
@@ -29,20 +38,21 @@ public class InMemoryUserRepository implements UserRepository {
     @Override
     public User save(User user) {
         log.info("save {}", user);
-        User entityUser;
         if (user.isNew()) {
-            entityUser = new User(counter.incrementAndGet(), user.getName(), user.getEmail(),
-                    user.getPassword(), user.getCaloriesPerDay(), user.isEnabled(), user.getRoles());
-            repository.put(counter.intValue(), entityUser);
-        } else {
-            if (user.getId() > counter.intValue() || repository.get(user.getId()) == null) {
-                return null;
-            }
-            entityUser = new User(user.getId(), user.getName(), user.getEmail(),
-                    user.getPassword(), user.getCaloriesPerDay(), user.isEnabled(), user.getRoles());
-            repository.put(user.getId(), entityUser);
+            user.setId(counter.incrementAndGet());
+            repository.put(user.getId(), user);
+            return user;
         }
-        return entityUser;
+        return repository.computeIfPresent(user.getId(), (id, oldUser) -> user);
+    }
+
+    public static void main(String[] args) {
+        InMemoryUserRepository inMemoryUserRepository = new InMemoryUserRepository();
+        User updateuser = inMemoryUserRepository.get(2);
+        updateuser.setEmail("newEmail");
+
+        inMemoryUserRepository.save(updateuser);
+        inMemoryUserRepository.getAll().forEach(System.out::println);
     }
 
     // null if not found
@@ -56,8 +66,7 @@ public class InMemoryUserRepository implements UserRepository {
     public List<User> getAll() {
         log.info("getAll");
         return repository.values().stream()
-                .sorted(Comparator.comparing(AbstractNamedEntity::getName))
-                .sorted(Comparator.comparing(User::getEmail))
+                .sorted(Comparator.comparing(User::getName).thenComparing(User::getEmail))
                 .collect(Collectors.toList());
     }
 
