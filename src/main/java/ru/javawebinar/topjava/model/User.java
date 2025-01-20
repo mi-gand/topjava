@@ -33,16 +33,6 @@ public class User extends AbstractNamedEntity {
         setRoles(roles);
     }
 
-    public User(User user){
-        super(user.id, user.getName() );
-        this.email = user.email;
-        this.password = user.password;
-        this.caloriesPerDay = user.caloriesPerDay;
-        this.enabled = user.enabled;
-        this.registered = user.registered;
-        this.roles = user.roles;
-    }
-
     public String getEmail() {
         return email;
     }

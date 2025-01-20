@@ -10,6 +10,7 @@ import java.time.Month;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Repository
 public class InMemoryMealRepository implements MealRepository {
@@ -27,16 +28,56 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public Meal save(Meal meal, int userId) {
+        return repository.computeIfAbsent(userId, v -> new ConcurrentHashMap<>())
+                .compute(meal.isNew() ? counter.incrementAndGet() : meal.getId(), (id, existingMeal) -> {
+                    if (!meal.isNew() && existingMeal == null) {
+                        return null;
+                    }
+                    meal.setId(id);
+                    return meal;
+                });
+    }
+
+    @Override
+    public boolean delete(int id, int userId) {
+        Map<Integer, Meal> userMeals = repository.get(userId);
+        if (userMeals == null) {
+            return false;
+        }
+        return userMeals.remove(id) != null;
+    }
+
+    @Override
+    public Meal get(int id, int userId) {
+        Map<Integer, Meal> userMeals = repository.get(userId);
+        return userMeals == null ? null : userMeals.get(id);
+    }
+
+    @Override
+    public List<Meal> getAll(int userId) {
+        Map<Integer, Meal> userMeals = repository.get(userId);
+        if (userMeals == null) {
+            return Collections.emptyList();
+        }
+        return userMeals.values().stream()
+                .sorted(Comparator.comparing(Meal::getDateTime).reversed())
+                .collect(Collectors.toList());
+    }
+
+
+
+/*    @Override
+    public Meal save(Meal meal, int userId) {
         Map<Integer, Meal> userMeals = repository.computeIfAbsent(userId, v -> new ConcurrentHashMap<>());
 
-        synchronized (userMeals){
-        if (!meal.isNew() && !userMeals.containsKey(meal.getId())) {
-            return null;
-        }
-        if (meal.isNew()) {
-            meal.setId(counter.incrementAndGet());
-        }
-        userMeals.put(meal.getId(), meal);
+        synchronized (userMeals) {
+            if (!meal.isNew() && !userMeals.containsKey(meal.getId())) {
+                return null;
+            }
+            if (meal.isNew()) {
+                meal.setId(counter.incrementAndGet());
+            }
+            userMeals.put(meal.getId(), meal);
         }
         return meal;
     }
@@ -71,5 +112,5 @@ public class InMemoryMealRepository implements MealRepository {
         List<Meal> meals = new ArrayList<>(userMeals.values());
         meals.sort(Comparator.comparing(Meal::getDateTime).reversed());
         return meals;
-    }
+    }*/
 }

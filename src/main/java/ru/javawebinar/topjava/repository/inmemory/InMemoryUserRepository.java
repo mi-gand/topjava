@@ -3,7 +3,6 @@ package ru.javawebinar.topjava.repository.inmemory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-import ru.javawebinar.topjava.model.AbstractNamedEntity;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
@@ -44,15 +43,6 @@ public class InMemoryUserRepository implements UserRepository {
             return user;
         }
         return repository.computeIfPresent(user.getId(), (id, oldUser) -> user);
-    }
-
-    public static void main(String[] args) {
-        InMemoryUserRepository inMemoryUserRepository = new InMemoryUserRepository();
-        User updateuser = inMemoryUserRepository.get(2);
-        updateuser.setEmail("newEmail");
-
-        inMemoryUserRepository.save(updateuser);
-        inMemoryUserRepository.getAll().forEach(System.out::println);
     }
 
     // null if not found

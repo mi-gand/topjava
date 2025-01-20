@@ -20,6 +20,24 @@
 <section>
     <h3><a href="index.html">Home</a></h3>
     <hr/>
+    <h2>Filtering</h2>
+    <form method="get" action="meals">
+        <input type="hidden" name="action" value="filtering">
+    <table>
+        <tr>
+            <td>От даты (включая):</td>
+            <td><input type="date" name="startDate"></td>
+            <td>До даты (включая):</td>
+            <td><input type="date" name="endDate"></td>
+            <td>От времени (включая):</td>
+            <td><input type="time" name="startTime"></td>
+            <td>До времени (исключая):</td>
+            <td><input type="time" name="endTime"></td>
+        </tr>
+    </table>
+        <button type="submit">Filtering</button>
+    </form>
+
     <h2>Meals</h2>
     <a href="meals?action=create">Add Meal</a>
     <br><br>
