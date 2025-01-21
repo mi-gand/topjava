@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.to.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
@@ -43,9 +44,9 @@ public class MealServlet extends HttpServlet {
                 Integer.parseInt(request.getParameter("calories")));
 
         log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
-        if(meal.isNew()){
+        if (meal.isNew()) {
             mealRestController.create(meal);
-        }else{
+        } else {
             mealRestController.update(meal, Integer.parseInt(id));
         }
         response.sendRedirect("meals");
@@ -73,10 +74,9 @@ public class MealServlet extends HttpServlet {
                 LocalDate endDate = request.getParameter("endDate").isEmpty()
                         ? null : LocalDate.parse(request.getParameter("endDate"));
 
-                List<Meal> listOfFiltredMeals = mealRestController.getAllFiltered(startDate,
+                List<MealTo> listOfFiltredMeals = mealRestController.getAllFiltered(startDate,
                         startTime, endDate, endTime);
-                request.setAttribute("meals",
-                        MealsUtil.getTos(listOfFiltredMeals, MealsUtil.DEFAULT_CALORIES_PER_DAY));
+                request.setAttribute("meals", listOfFiltredMeals);
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
             case "create":

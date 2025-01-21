@@ -6,18 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
-import ru.javawebinar.topjava.util.DateTimeUtil;
+import ru.javawebinar.topjava.to.MealTo;
+import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
-
 
 @Controller
 public class MealRestController {
@@ -32,21 +31,18 @@ public class MealRestController {
         return new ArrayList<>(service.getAll(userId));
     }
 
-    public List<Meal> getAllFiltered(LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+    public List<MealTo> getAllFiltered(LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
         int userId = SecurityUtil.authUserId();
         log.info("getAllFiltered");
-
-        List<Meal> allResult = service.getAll(userId);
 
         LocalDate nullStartDate = (startDate == null) ? LocalDate.MIN : startDate;
         LocalTime nullStartTime = (startTime == null) ? LocalTime.MIN : startTime;
         LocalDate nullEndDate = (endDate == null) ? LocalDate.MAX : endDate;
         LocalTime nullEndTime = (endTime == null) ? LocalTime.MAX : endTime;
 
-        return allResult.stream()
-                .filter(meal -> DateTimeUtil.isBetweenHalfOpenTime(meal.getTime(), nullStartTime, nullEndTime))
-                .filter(meal -> DateTimeUtil.isBetweenCloseDate(meal.getDate(), nullStartDate, nullEndDate))
-                .collect(Collectors.toList());
+        List<Meal> resultsInDays = service.getFilteredByDate(nullStartDate, nullEndDate, userId);
+
+        return MealsUtil.getFilteredTos(resultsInDays, MealsUtil.DEFAULT_CALORIES_PER_DAY, nullStartTime, nullEndTime);
     }
 
     public Meal get(int id) {
