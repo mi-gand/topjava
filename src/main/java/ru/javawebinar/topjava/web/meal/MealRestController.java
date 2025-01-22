@@ -25,24 +25,25 @@ public class MealRestController {
     @Autowired
     private MealService service;
 
-    public List<Meal> getAll() {
+    public List<MealTo> getAll() {
         int userId = SecurityUtil.authUserId();
         log.info("getAll");
-        return new ArrayList<>(service.getAll(userId));
+        MealsUtil.getTos(service.getAll(userId), MealsUtil.DEFAULT_CALORIES_PER_DAY);
+        return MealsUtil.getTos(service.getAll(userId), MealsUtil.DEFAULT_CALORIES_PER_DAY);
     }
 
     public List<MealTo> getAllFiltered(LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
         int userId = SecurityUtil.authUserId();
         log.info("getAllFiltered");
 
-        LocalDate nullStartDate = (startDate == null) ? LocalDate.MIN : startDate;
-        LocalTime nullStartTime = (startTime == null) ? LocalTime.MIN : startTime;
-        LocalDate nullEndDate = (endDate == null) ? LocalDate.MAX : endDate;
-        LocalTime nullEndTime = (endTime == null) ? LocalTime.MAX : endTime;
+        LocalDate notNullStartDate = (startDate == null) ? LocalDate.MIN : startDate;
+        LocalTime notNullStartTime = (startTime == null) ? LocalTime.MIN : startTime;
+        LocalDate notNullEndDate = (endDate == null) ? LocalDate.MAX : endDate;
+        LocalTime notNullEndTime = (endTime == null) ? LocalTime.MAX : endTime;
 
-        List<Meal> resultsInDays = service.getFilteredByDate(nullStartDate, nullEndDate, userId);
+        List<Meal> resultsInDays = service.getFilteredByDate(notNullStartDate, notNullEndDate, userId);
 
-        return MealsUtil.getFilteredTos(resultsInDays, MealsUtil.DEFAULT_CALORIES_PER_DAY, nullStartTime, nullEndTime);
+        return MealsUtil.getFilteredTos(resultsInDays, MealsUtil.DEFAULT_CALORIES_PER_DAY, notNullStartTime, notNullEndTime);
     }
 
     public Meal get(int id) {

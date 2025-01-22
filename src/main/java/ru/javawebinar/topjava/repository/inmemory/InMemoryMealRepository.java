@@ -3,8 +3,10 @@ package ru.javawebinar.topjava.repository.inmemory;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
+import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.*;
@@ -61,6 +63,17 @@ public class InMemoryMealRepository implements MealRepository {
         }
         return userMeals.values().stream()
                 .sorted(Comparator.comparing(Meal::getDateTime).reversed())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Meal> getFilteredByDate(LocalDate startDate, LocalDate endDate, int userId) {
+        Map<Integer, Meal> userMeals = repository.get(userId);
+        LocalDate notNullStartDate = (startDate == null) ? LocalDate.MIN : startDate;
+        LocalDate notNullEndDate = (endDate == null) ? LocalDate.MAX : endDate;
+
+        return userMeals.values().stream()
+                .filter(meal -> DateTimeUtil.isBetweenCloseDate(meal.getDate(), notNullStartDate, notNullEndDate))
                 .collect(Collectors.toList());
     }
 }

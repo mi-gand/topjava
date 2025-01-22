@@ -89,12 +89,9 @@ public class MealServlet extends HttpServlet {
                 break;
             case "all":
             default:
-                List<Meal> listOfMeals = mealRestController.getAll();
                 log.info("getAll");
-                request.setAttribute("meals",
-                        MealsUtil.getTos(listOfMeals, MealsUtil.DEFAULT_CALORIES_PER_DAY));
+                request.setAttribute("meals", mealRestController.getAll());
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
-                listOfMeals.forEach(v -> log.info(v.toString()));
                 break;
         }
     }

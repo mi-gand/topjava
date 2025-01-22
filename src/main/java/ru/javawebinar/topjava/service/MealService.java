@@ -42,12 +42,6 @@ public class MealService {
     }
 
     public List<Meal> getFilteredByDate(LocalDate startDate, LocalDate endDate, int userId) {
-        List<Meal> userMeals = repository.getAll(userId);
-        LocalDate nullStartDate = (startDate == null) ? LocalDate.MIN : startDate;
-        LocalDate nullEndDate = (endDate == null) ? LocalDate.MAX : endDate;
-
-        return userMeals.stream()
-                .filter(meal -> DateTimeUtil.isBetweenCloseDate(meal.getDate(), nullStartDate, nullEndDate))
-                .collect(Collectors.toList());
+        return repository.getFilteredByDate(startDate, endDate, userId);
     }
 }
