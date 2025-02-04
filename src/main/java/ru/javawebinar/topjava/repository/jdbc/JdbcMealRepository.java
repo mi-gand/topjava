@@ -3,6 +3,8 @@ package ru.javawebinar.topjava.repository.jdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -13,6 +15,8 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.service.MealService;
+import ru.javawebinar.topjava.util.exception.NotFoundException;
+import ru.javawebinar.topjava.web.SecurityUtil;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
 import java.time.LocalDateTime;
@@ -21,6 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
+@Primary
 public class JdbcMealRepository implements MealRepository {
     private static final BeanPropertyRowMapper<Meal> ROW_MAPPER = BeanPropertyRowMapper.newInstance(Meal.class);
     private final JdbcTemplate jdbcTemplate;
@@ -47,15 +52,16 @@ public class JdbcMealRepository implements MealRepository {
                 .addValue("description", meal.getDescription())
                 .addValue("calories", meal.getCalories())
                 .addValue("user_id", userId);
-
-
         if (meal.isNew()) {
             Number newKey = insertMeal.executeAndReturnKey(map);
             meal.setId(newKey.intValue());
-        } else if (namedParameterJdbcTemplate.update(
-                "UPDATE meals SET id=:id, date_time=:dateTime, description=:description, " +
-                        "calories=:calories, user_id=:user_id WHERE id=:id", map) == 0) {
-            return null;
+        } else {
+            if(this.get(meal.getId(), userId) == null){
+                throw new NotFoundException(String.format("Meal %d does not belong to user %d", meal.getId(), userId));
+            }
+            namedParameterJdbcTemplate.update(
+                    "UPDATE meals SET id=:id, date_time=:dateTime, description=:description, " +
+                            "calories=:calories, user_id=:user_id WHERE id=:id", map);
         }
         return meal;
     }
@@ -67,20 +73,20 @@ public class JdbcMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        return jdbcTemplate.query("SELECT * FROM meals WHERE id=? AND user_id=?",ROW_MAPPER, id, userId)
-                .stream().findFirst().orElse(null);
+        List<Meal> meals = jdbcTemplate.query("SELECT * FROM meals WHERE id=? AND user_id=?",ROW_MAPPER, id, userId);
+        return DataAccessUtils.singleResult(meals);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return new ArrayList<>(jdbcTemplate.query("SELECT id, date_time AS dateTime, description, " +
-                "calories, user_id AS userId FROM meals WHERE user_id=? ORDER BY date_time DESC", ROW_MAPPER, userId));
+        return jdbcTemplate.query("SELECT id, date_time AS dateTime, description, " +
+                "calories, user_id AS userId FROM meals WHERE user_id=? ORDER BY date_time DESC", ROW_MAPPER, userId);
     }
 
     @Override
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
-        return new ArrayList<>(jdbcTemplate.query("SELECT * FROM meals WHERE id=? " +
+        return jdbcTemplate.query("SELECT * FROM meals WHERE user_id=? " +
                         "AND date_time > ? AND date_time < ?  ORDER BY date_time DESC",
-                ROW_MAPPER, userId, startDateTime, endDateTime));
+                ROW_MAPPER, userId, startDateTime, endDateTime);
     }
 }
