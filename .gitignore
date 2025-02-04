@@ -4,7 +4,6 @@ target
 *.iml
 log
 *.patch
-*.properties
-workingBuildings
+
 
 

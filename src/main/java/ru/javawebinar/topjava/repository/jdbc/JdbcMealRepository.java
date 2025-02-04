@@ -1,7 +1,5 @@
 package ru.javawebinar.topjava.repository.jdbc;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.support.DataAccessUtils;
@@ -12,17 +10,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.service.MealService;
-import ru.javawebinar.topjava.util.exception.NotFoundException;
-import ru.javawebinar.topjava.web.SecurityUtil;
-import ru.javawebinar.topjava.web.meal.MealRestController;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 @Primary
@@ -33,7 +24,6 @@ public class JdbcMealRepository implements MealRepository {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     private final SimpleJdbcInsert insertMeal;
-    private static final Logger log = LoggerFactory.getLogger(JdbcMealRepository.class);
 
     @Autowired
     public JdbcMealRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
@@ -55,13 +45,10 @@ public class JdbcMealRepository implements MealRepository {
         if (meal.isNew()) {
             Number newKey = insertMeal.executeAndReturnKey(map);
             meal.setId(newKey.intValue());
-        } else {
-            if(this.get(meal.getId(), userId) == null){
-                throw new NotFoundException(String.format("Meal %d does not belong to user %d", meal.getId(), userId));
-            }
-            namedParameterJdbcTemplate.update(
-                    "UPDATE meals SET id=:id, date_time=:dateTime, description=:description, " +
-                            "calories=:calories, user_id=:user_id WHERE id=:id", map);
+        } else if(namedParameterJdbcTemplate.update(
+                "UPDATE meals SET date_time=:dateTime, description=:description, " +
+                        "calories=:calories WHERE id=:id AND user_id=:user_id", map) == 0) {
+                return null;
         }
         return meal;
     }

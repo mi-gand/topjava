@@ -59,7 +59,6 @@ public class MealRestController {
         service.update(meal, userId);
     }
 
-
     /**
      * <ol>Filter separately
      * <li>by date</li>
