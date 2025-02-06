@@ -6,22 +6,16 @@
 
     <context:annotation-config/>
 
-    <bean class="ru.javawebinar.topjava.repository.inmemory.InMemoryUserRepository" id="inmemoryUserRepository"/>
+    <!-- Repositories !-->
+    <bean class="ru.javawebinar.topjava.repository.inmemory.InMemoryUserRepository"/>
+    <bean class="ru.javawebinar.topjava.repository.inmemory.InMemoryMealRepository"/>
 
-    <bean class="ru.javawebinar.topjava.service.UserService">
-        <constructor-arg name="repository" ref="inmemoryUserRepository"/>
-    </bean>
+    <!-- Services !-->
+    <bean class="ru.javawebinar.topjava.service.UserService"/>
+    <bean class="ru.javawebinar.topjava.service.MealService"/>
 
-    <bean class="ru.javawebinar.topjava.web.user.AdminRestController" id="adminRestController"/>
-
-    <bean class="ru.javawebinar.topjava.web.meal.MealRestController" id="mealRestController">
-        <constructor-arg name="service" ref="mealService"/>
-    </bean>
-
-    <bean class="ru.javawebinar.topjava.service.MealService" id="mealService">
-        <constructor-arg name="repository" ref="mealRepository"/>
-    </bean>
-
-    <bean class="ru.javawebinar.topjava.repository.inmemory.InMemoryMealRepository" id="mealRepository"/>
+    <!-- Controllers !-->
+    <bean class="ru.javawebinar.topjava.web.user.AdminRestController"/>
+    <bean class="ru.javawebinar.topjava.web.meal.MealRestController"/>
 
 </beans>
