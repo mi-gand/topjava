@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava;
 
+import org.junit.Assert;
 import ru.javawebinar.topjava.model.Meal;
 
 import java.time.LocalDateTime;
@@ -7,78 +8,65 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static ru.javawebinar.topjava.model.AbstractBaseEntity.START_SEQ;
 
 public class MealTestData {
 
-    public final static int MEAL_ID_FIRST_VALUE = START_SEQ + 3;
-    public final static int MEAL_ID_SECOND_VALUE = START_SEQ + 4;
-    public final static int MEAL_ID_THIRD_VALUE = START_SEQ + 5;
-    public final static int MEAL_ID_FOURTH_VALUE = START_SEQ + 6;
-    public final static int MEAL_ID_FIFTH_VALUE = START_SEQ + 7;
-    public final static int MEAL_ID_SIXTH_VALUE = START_SEQ + 8;
-    public final static int MEAL_ID_SEVENTH_VALUE = START_SEQ + 9;
-    public final static int MEAL_ID_FIRST_VALUE_SECOND_USER = START_SEQ + 10;
-    public final static int MEAL_ID_NEW_VALUE = START_SEQ + 17;
+    public static final int FIRST_MEAL_ID = START_SEQ + 3;
+    public static final int SECOND_MEAL_ID = START_SEQ + 4;
+    public static final int THIRD_MEAL_ID = START_SEQ + 5;
+    public static final int FOURTH_MEAL_ID = START_SEQ + 6;
+    public static final int FIFTH_MEAL_ID = START_SEQ + 7;
+    public static final int SIXTH_MEAL_ID = START_SEQ + 8;
+    public static final int SEVENTH_MEAL_ID = START_SEQ + 9;
+    public static final int NEW_MEAL_ID = START_SEQ + 17;
 
-    public final static Meal NEW_MEAL_WITHOUT_ID = new Meal(LocalDateTime.of(2024, 11, 30, 10, 0),
-            "Тест", 500);
-
-    public final static Meal FIRST_MEAL = new Meal(MEAL_ID_FIRST_VALUE,
+    public static final Meal firstMeal = new Meal(FIRST_MEAL_ID,
             LocalDateTime.of(2020, 1, 29, 10, 0),
             "Завтрак тестовый", 500);
 
-    public final static Meal SECOND_MEAL = new Meal(MEAL_ID_SECOND_VALUE,
+    public static final Meal secondMeal = new Meal(SECOND_MEAL_ID,
             LocalDateTime.of(2020, 1, 29, 13, 0),
             "Обед тестовый", 1000);
 
-    public final static Meal THIRD_MEAL = new Meal(MEAL_ID_THIRD_VALUE,
+    public static final Meal thirdMeal = new Meal(THIRD_MEAL_ID,
             LocalDateTime.of(2020, 1, 29, 20, 0),
             "Ужин тестовый", 500);
 
-    public final static Meal FOURTH_MEAL = new Meal(MEAL_ID_FOURTH_VALUE,
+    public static final Meal fourthMeal = new Meal(FOURTH_MEAL_ID,
             LocalDateTime.of(2020, 1, 31, 0, 0),
             "Еда на граничное значение тестовый", 100);
 
-    public final static Meal FIFTH_MEAL = new Meal(MEAL_ID_FIFTH_VALUE,
+    public static final Meal fifthMeal = new Meal(FIFTH_MEAL_ID,
             LocalDateTime.of(2020, 1, 31, 10, 0),
             "Завтрак тестовый", 1000);
 
-    public final static Meal SIXTH_MEAL = new Meal(MEAL_ID_SIXTH_VALUE,
+    public static final Meal sixthMeal = new Meal(SIXTH_MEAL_ID,
             LocalDateTime.of(2020, 1, 31, 13, 0),
             "Обед тестовый", 500);
 
-    public final static Meal SEVENTH_MEAL = new Meal(MEAL_ID_SEVENTH_VALUE,
+    public static final Meal seventhMeal = new Meal(SEVENTH_MEAL_ID,
             LocalDateTime.of(2020, 1, 31, 20, 0),
             "Ужин тестовый", 410);
-    public final static Meal FIRST_MEAL_SECOND_USER = new Meal(MEAL_ID_FIRST_VALUE_SECOND_USER,
-            LocalDateTime.of(2020, 3, 30, 10, 0),
-            "Завтрак второго тестовый", 500);
 
+    public static final Meal newMealWithoutId = new Meal(LocalDateTime.of(2024, 11, 30, 10, 0),
+            "Тест", 500);
 
-    public static boolean isEqualsMeals(Meal sample, Meal fromDB){
-        return sample.getId().equals(fromDB.getId()) &&
-                sample.getDateTime().equals(fromDB.getDateTime()) &&
-                sample.getDescription().equals(fromDB.getDescription()) &&
-                sample.getCalories() == fromDB.getCalories();
+    public static void assertMatch(Meal actual, Meal expected) {
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
-    public static boolean listsAreEquals(List<Meal> sample, List<Meal> fromDB){
-        if(sample.size()!= fromDB.size()) return false;
-        for (int i = 0; i < sample.size(); i++) {
-            Meal s = sample.get(i);
-            Meal f = fromDB.get(i);
-            if(!isEqualsMeals(s, f)) return false;
+    public static void assertMatch(List<Meal> actual, List<Meal> expected) {
+        Assert.assertEquals(actual.size(), expected.size());
+        for (int i = 0; i < actual.size(); i++) {
+            assertMatch(actual.get(i), expected.get(i));
         }
-        return true;
     }
 
     public static List<Meal> allMealFirstUser() {
         return new ArrayList<>(Arrays.asList(
-                SEVENTH_MEAL, SIXTH_MEAL, FIFTH_MEAL, FOURTH_MEAL, THIRD_MEAL, SECOND_MEAL, FIRST_MEAL
+                seventhMeal, sixthMeal, fifthMeal, fourthMeal, thirdMeal, secondMeal, firstMeal
         ));
     }
-
-
 }

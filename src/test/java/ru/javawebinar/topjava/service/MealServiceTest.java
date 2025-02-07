@@ -3,7 +3,6 @@ package ru.javawebinar.topjava.service;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
@@ -12,11 +11,10 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
@@ -30,67 +28,73 @@ public class MealServiceTest {
 
     @Test
     public void get() {
-        Meal mealFromDB = service.get(MEAL_ID_FIRST_VALUE, USER_ID);
-        assertTrue(isEqualsMeals(FIRST_MEAL, mealFromDB));
+        Meal expectedMealsFromDB = service.get(FIRST_MEAL_ID, USER_ID);
+        assertMatch(firstMeal, expectedMealsFromDB);
     }
 
     @Test
     public void delete() {
-        service.delete(MEAL_ID_FIRST_VALUE, USER_ID);
-        assertThrows(NotFoundException.class, () -> service.delete(MEAL_ID_FIRST_VALUE, USER_ID));
+        service.delete(FIRST_MEAL_ID, USER_ID);
+        assertThrows(NotFoundException.class, () -> service.delete(FIRST_MEAL_ID, USER_ID));
     }
 
     @Test
-    public void getBetweenInclusive() {
-        List<Meal> allMealsFromDB = service.getBetweenInclusive(null, null, USER_ID);
-        List<Meal> testMealList = allMealFirstUser();
-        assertTrue(listsAreEquals(testMealList, allMealsFromDB));
+    public void getBetweenInclusiveAll() {
+        List<Meal> expectedMealsFromDB = service.getBetweenInclusive(null, null, USER_ID);
+        List<Meal> actualMeals = allMealFirstUser();
+        assertMatch(actualMeals, expectedMealsFromDB);
+    }
 
-        List<Meal> targetMealsFromDB = service.getBetweenInclusive(
+    @Test
+    public void getBetweenInclusiveInterval() {
+        List<Meal> expectedMealsFromDB = service.getBetweenInclusive(
                 LocalDate.of(2020, 1, 29),
                 LocalDate.of(2020, 1, 30),
                 USER_ID
         );
-
-        List<Meal> targetTestMealList = Arrays.asList(THIRD_MEAL, SECOND_MEAL, FIRST_MEAL);
-        assertTrue(listsAreEquals(targetTestMealList, targetMealsFromDB));
+        List<Meal> actualMeals = Arrays.asList(thirdMeal, secondMeal, firstMeal);
+        assertMatch(actualMeals, expectedMealsFromDB);
     }
 
     @Test
     public void outsiderMealInjectionDelete() {
-        assertThrows(NotFoundException.class, () -> service.delete(MEAL_ID_FIRST_VALUE, ADMIN_ID));
+        assertThrows(NotFoundException.class, () -> service.delete(FIRST_MEAL_ID, ADMIN_ID));
     }
 
     @Test
     public void outsiderMealInjectionGet() {
-        assertThrows(NotFoundException.class, () -> service.get(MEAL_ID_FIRST_VALUE, ADMIN_ID));
+        assertThrows(NotFoundException.class, () -> service.get(FIRST_MEAL_ID, ADMIN_ID));
     }
 
     @Test
     public void outsiderMealInjectionUpdate() {
-        assertThrows(NotFoundException.class, () -> service.update(FIRST_MEAL, ADMIN_ID));
+        assertThrows(NotFoundException.class, () -> service.update(firstMeal, ADMIN_ID));
     }
 
     @Test
     public void getAll() {
-        List<Meal> mealsFromDB = service.getAll(USER_ID);
-        List<Meal> testMealList = allMealFirstUser();
-        assertTrue(listsAreEquals(testMealList, mealsFromDB));
+        List<Meal> actualMealsFromDB = service.getAll(USER_ID);
+        List<Meal> expectedMeals = allMealFirstUser();
+        assertMatch(expectedMeals, actualMealsFromDB);
     }
 
     @Test
     public void update() {
-        Meal updatedMeal = SEVENTH_MEAL;
-        updatedMeal.setCalories(777);
-        service.update(SEVENTH_MEAL, USER_ID);
-        Meal mealFromDB = service.get(MEAL_ID_SEVENTH_VALUE, USER_ID);
-        assertTrue(isEqualsMeals(updatedMeal, mealFromDB));
+        Meal updatedMeal = new Meal(seventhMeal.getId(), seventhMeal.getDateTime(),
+                seventhMeal.getDescription(), seventhMeal.getCalories());
+        service.update(updatedMeal, USER_ID);
+        Meal actualMealFromDB = service.get(SEVENTH_MEAL_ID, USER_ID);
+        Meal expectedMeal = new Meal(seventhMeal.getId(), seventhMeal.getDateTime(),
+                seventhMeal.getDescription(), seventhMeal.getCalories());
+        assertMatch(expectedMeal, actualMealFromDB);
     }
 
     @Test
     public void create() {
-        Meal mealFromDB = service.create(NEW_MEAL_WITHOUT_ID, USER_ID);
-        NEW_MEAL_WITHOUT_ID.setId(MEAL_ID_NEW_VALUE);
-        assertTrue(isEqualsMeals(NEW_MEAL_WITHOUT_ID, mealFromDB));
+        Meal expectedMeal = new Meal(newMealWithoutId.getDateTime(),
+                newMealWithoutId.getDescription(), newMealWithoutId.getCalories());
+        Meal actualMealFromDB = service.create(expectedMeal, USER_ID);
+        newMealWithoutId.setId(NEW_MEAL_ID);
+        assertMatch(newMealWithoutId, actualMealFromDB);
     }
 }

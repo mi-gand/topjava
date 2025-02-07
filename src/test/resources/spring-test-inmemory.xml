@@ -7,15 +7,12 @@
     <context:annotation-config/>
 
     <!-- Repositories !-->
-    <bean class="ru.javawebinar.topjava.repository.inmemory.InMemoryUserRepository"/>
-    <bean class="ru.javawebinar.topjava.repository.inmemory.InMemoryMealRepository"/>
+    <context:component-scan base-package="ru.javawebinar.topjava.repository.inmemory"/>
 
     <!-- Services !-->
-    <bean class="ru.javawebinar.topjava.service.UserService"/>
-    <bean class="ru.javawebinar.topjava.service.MealService"/>
+    <context:component-scan base-package="ru.javawebinar.topjava.service"/>
 
     <!-- Controllers !-->
-    <bean class="ru.javawebinar.topjava.web.user.AdminRestController"/>
-    <bean class="ru.javawebinar.topjava.web.meal.MealRestController"/>
+    <context:component-scan base-package="ru.javawebinar.topjava.web"/>
 
 </beans>
