@@ -1,6 +1,5 @@
 package ru.javawebinar.topjava;
 
-import org.junit.Assert;
 import ru.javawebinar.topjava.model.Meal;
 
 import java.time.LocalDateTime;
@@ -8,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static ru.javawebinar.topjava.model.AbstractBaseEntity.START_SEQ;
 
 public class MealTestData {
@@ -20,7 +18,6 @@ public class MealTestData {
     public static final int FIFTH_MEAL_ID = START_SEQ + 7;
     public static final int SIXTH_MEAL_ID = START_SEQ + 8;
     public static final int SEVENTH_MEAL_ID = START_SEQ + 9;
-    public static final int NEW_MEAL_ID = START_SEQ + 17;
 
     public static final Meal firstMeal = new Meal(FIRST_MEAL_ID,
             LocalDateTime.of(2020, 1, 29, 10, 0),
@@ -53,16 +50,6 @@ public class MealTestData {
     public static final Meal newMealWithoutId = new Meal(LocalDateTime.of(2024, 11, 30, 10, 0),
             "Тест", 500);
 
-    public static void assertMatch(Meal actual, Meal expected) {
-        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
-    }
-
-    public static void assertMatch(List<Meal> actual, List<Meal> expected) {
-        Assert.assertEquals(actual.size(), expected.size());
-        for (int i = 0; i < actual.size(); i++) {
-            assertMatch(actual.get(i), expected.get(i));
-        }
-    }
 
     public static List<Meal> allMealFirstUser() {
         return new ArrayList<>(Arrays.asList(

@@ -14,22 +14,29 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
 
-@ContextConfiguration("classpath:spring-test-jdbc.xml")
+@ContextConfiguration({
+        "classpath:spring/spring-app.xml",
+        "classpath:spring/spring-db.xml"
+})
 @RunWith(SpringRunner.class)
-@Sql(scripts = {"classpath:db/initDB.sql", "classpath:db/MealTestData.sql"}, config = @SqlConfig(encoding = "UTF-8"))
+@Sql(scripts = {
+        "classpath:db/initDB.sql",
+        "classpath:db/MealTestData.sql"},
+        config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
     @Autowired
     private MealService service;
 
     @Test
     public void get() {
-        Meal expectedMealsFromDB = service.get(FIRST_MEAL_ID, USER_ID);
-        assertMatch(firstMeal, expectedMealsFromDB);
+        Meal actualMeal = service.get(FIRST_MEAL_ID, USER_ID);
+        assertThat(actualMeal).usingRecursiveComparison().isEqualTo(firstMeal);
     }
 
     @Test
@@ -40,20 +47,20 @@ public class MealServiceTest {
 
     @Test
     public void getBetweenInclusiveAll() {
-        List<Meal> expectedMealsFromDB = service.getBetweenInclusive(null, null, USER_ID);
-        List<Meal> actualMeals = allMealFirstUser();
-        assertMatch(actualMeals, expectedMealsFromDB);
+        List<Meal> actualMeals = service.getBetweenInclusive(null, null, USER_ID);
+        List<Meal> expectedMeals = allMealFirstUser();
+        assertThat(actualMeals).usingRecursiveComparison().isEqualTo(expectedMeals);
     }
 
     @Test
     public void getBetweenInclusiveInterval() {
-        List<Meal> expectedMealsFromDB = service.getBetweenInclusive(
+        List<Meal> actualMeals = service.getBetweenInclusive(
                 LocalDate.of(2020, 1, 29),
                 LocalDate.of(2020, 1, 30),
                 USER_ID
         );
-        List<Meal> actualMeals = Arrays.asList(thirdMeal, secondMeal, firstMeal);
-        assertMatch(actualMeals, expectedMealsFromDB);
+        List<Meal> expectedMeals = Arrays.asList(thirdMeal, secondMeal, firstMeal);
+        assertThat(actualMeals).usingRecursiveComparison().isEqualTo(expectedMeals);
     }
 
     @Test
@@ -73,9 +80,9 @@ public class MealServiceTest {
 
     @Test
     public void getAll() {
-        List<Meal> actualMealsFromDB = service.getAll(USER_ID);
+        List<Meal> actualMeals = service.getAll(USER_ID);
         List<Meal> expectedMeals = allMealFirstUser();
-        assertMatch(expectedMeals, actualMealsFromDB);
+        assertThat(actualMeals).usingRecursiveComparison().isEqualTo(expectedMeals);
     }
 
     @Test
@@ -83,18 +90,18 @@ public class MealServiceTest {
         Meal updatedMeal = new Meal(seventhMeal.getId(), seventhMeal.getDateTime(),
                 seventhMeal.getDescription(), seventhMeal.getCalories());
         service.update(updatedMeal, USER_ID);
-        Meal actualMealFromDB = service.get(SEVENTH_MEAL_ID, USER_ID);
+        Meal actualMeal = service.get(SEVENTH_MEAL_ID, USER_ID);
         Meal expectedMeal = new Meal(seventhMeal.getId(), seventhMeal.getDateTime(),
                 seventhMeal.getDescription(), seventhMeal.getCalories());
-        assertMatch(expectedMeal, actualMealFromDB);
+        assertThat(actualMeal).usingRecursiveComparison().isEqualTo(expectedMeal);
     }
 
     @Test
     public void create() {
-        Meal expectedMeal = new Meal(newMealWithoutId.getDateTime(),
+        Meal newMeal = new Meal(newMealWithoutId.getDateTime(),
                 newMealWithoutId.getDescription(), newMealWithoutId.getCalories());
-        Meal actualMealFromDB = service.create(expectedMeal, USER_ID);
-        newMealWithoutId.setId(NEW_MEAL_ID);
-        assertMatch(newMealWithoutId, actualMealFromDB);
+        Meal createdMeal = service.create(newMeal, USER_ID);
+        Meal actualMealFromDB = service.get(createdMeal.getId(), USER_ID);
+        assertThat(actualMealFromDB).usingRecursiveComparison().isEqualTo(createdMeal);
     }
 }
