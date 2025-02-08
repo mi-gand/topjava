@@ -49,7 +49,7 @@ public class MealServiceTest {
     public void getBetweenInclusiveAll() {
         List<Meal> actualMeals = service.getBetweenInclusive(null, null, USER_ID);
         List<Meal> expectedMeals = allMealFirstUser();
-        assertThat(actualMeals).usingRecursiveComparison().isEqualTo(expectedMeals);
+        assertMatch(actualMeals, expectedMeals);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class MealServiceTest {
                 USER_ID
         );
         List<Meal> expectedMeals = Arrays.asList(thirdMeal, secondMeal, firstMeal);
-        assertThat(actualMeals).usingRecursiveComparison().isEqualTo(expectedMeals);
+        assertMatch(actualMeals, expectedMeals);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class MealServiceTest {
     public void getAll() {
         List<Meal> actualMeals = service.getAll(USER_ID);
         List<Meal> expectedMeals = allMealFirstUser();
-        assertThat(actualMeals).usingRecursiveComparison().isEqualTo(expectedMeals);
+        assertMatch(actualMeals, expectedMeals);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class MealServiceTest {
         Meal actualMeal = service.get(SEVENTH_MEAL_ID, USER_ID);
         Meal expectedMeal = new Meal(seventhMeal.getId(), seventhMeal.getDateTime(),
                 seventhMeal.getDescription(), seventhMeal.getCalories());
-        assertThat(actualMeal).usingRecursiveComparison().isEqualTo(expectedMeal);
+        assertMatch(actualMeal, expectedMeal);
     }
 
     @Test
@@ -102,6 +102,6 @@ public class MealServiceTest {
                 newMealWithoutId.getDescription(), newMealWithoutId.getCalories());
         Meal createdMeal = service.create(newMeal, USER_ID);
         Meal actualMealFromDB = service.get(createdMeal.getId(), USER_ID);
-        assertThat(actualMealFromDB).usingRecursiveComparison().isEqualTo(createdMeal);
+        assertMatch(actualMealFromDB, createdMeal);
     }
 }

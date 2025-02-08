@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static ru.javawebinar.topjava.model.AbstractBaseEntity.START_SEQ;
 
 public class MealTestData {
@@ -56,4 +57,13 @@ public class MealTestData {
                 seventhMeal, sixthMeal, fifthMeal, fourthMeal, thirdMeal, secondMeal, firstMeal
         ));
     }
+
+    public static void assertMatch(Meal actual, Meal expected) {
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    public static void assertMatch(List<Meal> actual, List<Meal> expected) {
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+    }
+
 }
