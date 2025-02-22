@@ -1,14 +1,11 @@
 package ru.javawebinar.topjava.repository.jpa;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.web.meal.MealRestController;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
