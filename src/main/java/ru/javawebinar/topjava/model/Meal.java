@@ -8,10 +8,10 @@ import java.time.LocalTime;
 
 @NamedQueries({
         @NamedQuery(name = Meal.DELETE, query = "DELETE FROM Meal m WHERE m.id=:id AND m.user.id=:userId"),
-        @NamedQuery(name = Meal.ALL_SORTED, query = "SELECT m FROM Meal m JOIN m.user " +
+        @NamedQuery(name = Meal.ALL_SORTED, query = "SELECT m FROM Meal m " +
                 "WHERE m.user.id=:userId ORDER BY m.dateTime DESC"),
-        @NamedQuery(name = Meal.GET, query = "SELECT m FROM Meal m JOIN m.user WHERE m.id=:id AND m.user.id=:userId"),
-        @NamedQuery(name = Meal.GET_BETWEEN_HALF_OPEN, query = "SELECT m FROM Meal m JOIN m.user " +
+        @NamedQuery(name = Meal.GET, query = "SELECT m FROM Meal m WHERE m.id=:id AND m.user.id=:userId"),
+        @NamedQuery(name = Meal.GET_BETWEEN_HALF_OPEN, query = "SELECT m FROM Meal m " +
                 "WHERE m.user.id=:userId AND m.dateTime >=:startTime AND m.dateTime <:endTime ORDER BY m.dateTime DESC ")
 })
 

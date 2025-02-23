@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,13 +27,18 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 })
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
-//@Ignore
 public class MealServiceTest {
     @Rule
     public TimeRule timeRule = new TimeRule();
 
     @Autowired
     private MealService service;
+
+    @AfterClass
+    public static void testsInfo() {
+        TimeRule.testsTime.forEach((key, value) ->
+                System.out.printf("Evaluation time of test \"%s\"  %d ms \n", key, value));
+    }
 
     @Test
     public void delete() {
@@ -69,10 +75,7 @@ public class MealServiceTest {
     @Test
     public void get() {
         Meal actual = service.get(ADMIN_MEAL_ID, ADMIN_ID);
-        Meal expected = new Meal(adminMeal1.getId(), adminMeal1.getDateTime(), adminMeal1.getDescription(),
-                adminMeal1.getCalories());
-        expected.setUser(actual.getUser());
-        MEAL_MATCHER.assertMatch(actual, expected);
+        MEAL_MATCHER.assertMatch(actual, adminMeal1);
     }
 
     @Test
