@@ -4,6 +4,8 @@ import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,10 +36,12 @@ public class MealServiceTest {
     @Autowired
     private MealService service;
 
+    private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
+
     @AfterClass
     public static void testsInfo() {
-        TimeRule.testsTime.forEach((key, value) ->
-                System.out.printf("Evaluation time of test \"%s\"  %d ms \n", key, value));
+        TimeRule.testsTime.forEach((key, value) -> log.info(String
+                .format("Evaluation time of test %-30s %5d ms \n", key, value)));
     }
 
     @Test
