@@ -5,7 +5,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
@@ -19,6 +18,7 @@ import java.time.LocalDate;
 import java.time.Month;
 
 import static org.junit.Assert.assertThrows;
+import static org.slf4j.LoggerFactory.getLogger;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
@@ -36,12 +36,12 @@ public class MealServiceTest {
     @Autowired
     private MealService service;
 
-    private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
+    private static final Logger log = getLogger("result");
 
     @AfterClass
     public static void testsInfo() {
         TimeRule.testsTime.forEach((key, value) -> log.info(String
-                .format("Evaluation time of test %-30s %5d ms \n", key, value)));
+                .format("Evaluation time of test %s %d ms \n", key, value)));
     }
 
     @Test

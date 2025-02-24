@@ -4,13 +4,14 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class TimeRule implements TestRule {
-    private static final Logger log = LoggerFactory.getLogger(TimeRule.class);
+    private static final Logger log = getLogger("result");
     public static Map<String, Long> testsTime = new HashMap<>();
 
     @Override
