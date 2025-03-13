@@ -1,10 +1,10 @@
-package ru.javawebinar.topjava.repository.dataJPA;
+package ru.javawebinar.topjava.repository.datajpa;
 
 import org.springframework.test.context.ActiveProfiles;
 import ru.javawebinar.topjava.service.AbstractMealServiceTest;
 
-import static ru.javawebinar.topjava.Profiles.JPA;
+import static ru.javawebinar.topjava.Profiles.DATAJPA;
 
-@ActiveProfiles(JPA)
+@ActiveProfiles(DATAJPA)
 public class DataJpaMealServiceTest extends AbstractMealServiceTest {
 }
