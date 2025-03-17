@@ -44,7 +44,7 @@ public class DataJpaMealRepository implements MealRepository {
 
     @Override
     public List<Meal> getAll(int userId) {
-        return crudMealRepository.findAllByUserId(userId).reversed();
+        return crudMealRepository.findAllByUserId(userId);
     }
 
     @Override
