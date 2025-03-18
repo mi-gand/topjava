@@ -22,11 +22,12 @@
         <!--no pooling-->
         <bean id="dataSource"
               class="org.springframework.jdbc.datasource.DriverManagerDataSource"
-              p:driverClassName="org.hsqldb.jdbcDriver"
+              p:driverClassName="org.hsqldb.jdbc.JDBCDriver"
               p:url="${database.url}"
               p:username="${database.username}"
               p:password="${database.password}"/>
     </beans>
+    <!--p:driverClassName="org.hsqldb.jdbcDriver"  -->
 
     <beans profile="postgres">
         <!--
