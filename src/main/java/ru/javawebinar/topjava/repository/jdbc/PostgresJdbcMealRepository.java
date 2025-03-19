@@ -10,10 +10,10 @@ import static ru.javawebinar.topjava.Profiles.POSTGRES_DB;
 
 @Repository
 @Profile(POSTGRES_DB)
-public class JdbcMealRepositoryPostgres extends JdbcMealRepository{
+public class PostgresJdbcMealRepository extends JdbcMealRepository{
 
     @Autowired
-    public JdbcMealRepositoryPostgres(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    public PostgresJdbcMealRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         super(jdbcTemplate, namedParameterJdbcTemplate);
     }
 }

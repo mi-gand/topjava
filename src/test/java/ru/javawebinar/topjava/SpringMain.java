@@ -13,13 +13,16 @@ import java.time.Month;
 import java.util.Arrays;
 import java.util.List;
 
+import static ru.javawebinar.topjava.Profiles.JDBC;
+import static ru.javawebinar.topjava.Profiles.getActiveDbProfile;
+
 public class SpringMain {
     public static void main(String[] args) {
         // java 7 automatic resource management (ARM)
         //System.setProperty("spring.profiles.active", "postgres, jdbc");
         //ConfigurableApplicationContext appCtx
         try (ClassPathXmlApplicationContext  appCtx = new ClassPathXmlApplicationContext()) {
-            appCtx.getEnvironment().setActiveProfiles("hsqldb", "jdbc");
+            appCtx.getEnvironment().setActiveProfiles(getActiveDbProfile(), JDBC);
             appCtx.setConfigLocations("spring/spring-app.xml", "spring/spring-db.xml");
             appCtx.refresh();
             System.out.println("Bean definition names: " + Arrays.toString(appCtx.getBeanDefinitionNames()));
