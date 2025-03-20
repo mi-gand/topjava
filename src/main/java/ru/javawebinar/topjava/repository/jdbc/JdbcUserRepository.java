@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsertOperations;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
@@ -14,12 +16,17 @@ import ru.javawebinar.topjava.repository.UserRepository;
 import java.util.List;
 
 @Repository
-public class JdbcUserRepository extends AbstractJdbcRepository<User> implements UserRepository {
+public class JdbcUserRepository implements UserRepository {
+    protected JdbcTemplate jdbcTemplate;
+    protected NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    protected SimpleJdbcInsertOperations insertEntity;
+    protected RowMapper<User> rowMapper;
 
     @Autowired
     public JdbcUserRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        super(jdbcTemplate, namedParameterJdbcTemplate);
-        super.insertEntity = new SimpleJdbcInsert(jdbcTemplate)
+        this.jdbcTemplate = jdbcTemplate;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+        this.insertEntity = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users")
                 .usingGeneratedKeyColumns("id");
         this.rowMapper = new BeanPropertyRowMapper<>(User.class);

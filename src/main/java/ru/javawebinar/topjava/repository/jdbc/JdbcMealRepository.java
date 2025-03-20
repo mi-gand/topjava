@@ -3,9 +3,11 @@ package ru.javawebinar.topjava.repository.jdbc;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsertOperations;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 
@@ -13,10 +15,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 
-public abstract class JdbcMealRepository extends AbstractJdbcRepository<Meal> implements MealRepository {
+public abstract class JdbcMealRepository<T> implements MealRepository {
+    protected JdbcTemplate jdbcTemplate;
+    protected NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    protected SimpleJdbcInsertOperations insertEntity;
+    protected RowMapper<Meal> rowMapper;
     public JdbcMealRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        super(jdbcTemplate, namedParameterJdbcTemplate);
-        super.insertEntity = new SimpleJdbcInsert(jdbcTemplate)
+        this.jdbcTemplate = jdbcTemplate;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+        this.insertEntity = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("meal")
                 .usingGeneratedKeyColumns("id");
         this.rowMapper = new BeanPropertyRowMapper<>(Meal.class);
@@ -44,13 +51,12 @@ public abstract class JdbcMealRepository extends AbstractJdbcRepository<Meal> im
                 .addValue("id", meal.getId())
                 .addValue("description", meal.getDescription())
                 .addValue("calories", meal.getCalories())
-                .addValue("date_time", actualDateFoDb(meal.getDateTime()))
+                .addValue("date_time", actualDateForDb(meal.getDateTime()))
                 .addValue("user_id", userId);
     }
 
-    protected Object actualDateFoDb(LocalDateTime localDateTime){
-        return localDateTime;
-    }
+
+    protected abstract T actualDateForDb(LocalDateTime localDateTime);
 
     @Override
     public boolean delete(int id, int userId) {
@@ -74,6 +80,6 @@ public abstract class JdbcMealRepository extends AbstractJdbcRepository<Meal> im
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
         return jdbcTemplate.query(
                 "SELECT * FROM meal WHERE user_id=?  AND date_time >=  ? AND date_time < ? ORDER BY date_time DESC",
-                rowMapper, userId, actualDateFoDb(startDateTime), actualDateFoDb(endDateTime));
+                rowMapper, userId, actualDateForDb(startDateTime), actualDateForDb(endDateTime));
     }
 }
