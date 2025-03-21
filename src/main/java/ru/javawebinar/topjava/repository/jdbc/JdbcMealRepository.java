@@ -20,12 +20,11 @@ public abstract class JdbcMealRepository<T> implements MealRepository {
     protected NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     protected SimpleJdbcInsertOperations insertEntity;
     protected RowMapper<Meal> rowMapper;
+
     public JdbcMealRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
-        this.insertEntity = new SimpleJdbcInsert(jdbcTemplate)
-                .withTableName("meal")
-                .usingGeneratedKeyColumns("id");
+        this.insertEntity = new SimpleJdbcInsert(jdbcTemplate).withTableName("meal").usingGeneratedKeyColumns("id");
         this.rowMapper = new BeanPropertyRowMapper<>(Meal.class);
     }
 
@@ -36,25 +35,21 @@ public abstract class JdbcMealRepository<T> implements MealRepository {
             Number newId = insertEntity.executeAndReturnKey(map);
             meal.setId(newId.intValue());
         } else {
-            if (namedParameterJdbcTemplate.update("" +
-                    "UPDATE meal " +
-                    "   SET description=:description, calories=:calories, date_time=:date_time " +
-                    " WHERE id=:id AND user_id=:user_id", map) == 0) {
+            if (namedParameterJdbcTemplate.update("" + "UPDATE meal " + "   SET description=:description, calories=:calories, date_time=:date_time " + " WHERE id=:id AND user_id=:user_id", map) == 0) {
                 return null;
             }
         }
         return meal;
     }
 
-    protected MapSqlParameterSource mapSql(Meal meal, int userId) {
-        return new MapSqlParameterSource()
-                .addValue("id", meal.getId())
-                .addValue("description", meal.getDescription())
+    private MapSqlParameterSource mapSql(Meal meal, int userId) {
+        return new MapSqlParameterSource().addValue("id", meal.getId())
+                .addValue("description",
+                meal.getDescription())
                 .addValue("calories", meal.getCalories())
                 .addValue("date_time", actualDateForDb(meal.getDateTime()))
                 .addValue("user_id", userId);
     }
-
 
     protected abstract T actualDateForDb(LocalDateTime localDateTime);
 
@@ -65,21 +60,17 @@ public abstract class JdbcMealRepository<T> implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        List<Meal> meals = jdbcTemplate.query(
-                "SELECT * FROM meal WHERE id = ? AND user_id = ?", rowMapper, id, userId);
+        List<Meal> meals = jdbcTemplate.query("SELECT * FROM meal WHERE id = ? AND user_id = ?", rowMapper, id, userId);
         return DataAccessUtils.singleResult(meals);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return jdbcTemplate.query(
-                "SELECT * FROM meal WHERE user_id=? ORDER BY date_time DESC", rowMapper, userId);
+        return jdbcTemplate.query("SELECT * FROM meal WHERE user_id=? ORDER BY date_time DESC", rowMapper, userId);
     }
 
     @Override
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
-        return jdbcTemplate.query(
-                "SELECT * FROM meal WHERE user_id=?  AND date_time >=  ? AND date_time < ? ORDER BY date_time DESC",
-                rowMapper, userId, actualDateForDb(startDateTime), actualDateForDb(endDateTime));
+        return jdbcTemplate.query("SELECT * FROM meal WHERE user_id=?  AND date_time >=  ? AND date_time < ? ORDER BY date_time DESC", rowMapper, userId, actualDateForDb(startDateTime), actualDateForDb(endDateTime));
     }
 }
